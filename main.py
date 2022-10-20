@@ -82,7 +82,10 @@ async def ocr_executor(
         det: bool = True, rec: bool = True, cls: bool = True,
 ) -> str:
     res = ocr.ocr(img, det=det, rec=rec, cls=cls)
-    log.info('size: %d, det: %s, rec: %s, result: %s', len(img), det, rec, res)
+    log.info(
+        'size: %d, det: %s, rec: %s, cls: %s, result: %s',
+        len(img), det, rec, cls, res
+    )
     return res
 
 
