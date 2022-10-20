@@ -1,0 +1,8 @@
+mugwort==0.1.0
+Polygon3==3.0.8
+paddleocr==2.6.0.1
+paddlepaddle
+fastapi
+python-multipart
+uvicorn
+pyinstaller
