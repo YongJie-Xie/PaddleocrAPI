@@ -6,16 +6,58 @@
 
 - 适用于大部分 Windows 操作系统，其他系统暂未测试
 
-  若提示缺少 DLL 异常请检查是否未启用【桌面体验】功能
+  若提示缺少 DLL 异常，请检查是否未启用【桌面体验】功能
 
 - 启动参数
 
-  --host 监听主机，默认：127.0.0.1
-
-  --port 监听端口，默认：8000
-
-  --lang 文本识别语言，默认：en
+| 参数     | 注解     | 缺省        |
+|--------|--------|-----------|
+| --host | 监听主机   | 127.0.0.1 |
+| --port | 监听端口   | 8000      |
+| --lang | 文本识别语言 | en        |
 
 - 模型文件存放位置
 
   ~/.paddleocr
+
+## 编译说明
+
+- 编译环境
+
+  - 操作系统：Windows Server 2008 R2 x64
+
+    注：需启用【桌面体验】功能
+
+  - 软件版本：Python 3.8.10
+
+    依赖参见 requirements.txt 文件
+
+- 安装依赖
+
+```shell
+pip install -r requirements.txt
+```
+
+- 编译准备
+
+  - 修改 image.py 文件，防止占用过高
+
+```python
+# .\venv\site-packages\paddle\dataset\image.py
+
+if six.PY3:
+    ...
+    import_cv2_proc = subprocess.Popen(
+        [interpreter, "-c", "import cv2"],
+        stdin=subprocess.PIPE,  # <-- here
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True)  # <-- here
+    ...
+```
+
+- 执行编译
+
+```shell
+pyinstaller --clean main.spec
+```
