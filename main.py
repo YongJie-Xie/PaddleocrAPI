@@ -97,41 +97,42 @@ async def ocr_endpoint(
     if 'content-type' in request.headers:
         content_type = request.headers.get('content-type').lower()
         log.info('Request ContentType: %s', content_type)
+
+        images = {}
         if content_type.startswith('multipart/form-data'):
-            images = await request.form()
+            data = await request.form()
+            for key, image in data.items():  # type: str, StarletteUploadFile
+                images[key] = await image.read()
         elif content_type == 'application/x-www-form-urlencoded':
-            images = await request.form()
+            data = await request.form()
+            for key, image in data.items():  # type: str, str
+                images[key] = base64.b64decode(image)
         elif content_type == 'application/json':
-            images = await request.json()
+            data = await request.json()
+            for key, image in data.items():  # type: str, str
+                images[key] = base64.b64decode(image)
         else:
             log.warning('Unsupported Content-Type: %s', type(content_type))
-            images = None
 
-        if images is not None:
-            data = {}
-            for name, image in images.items():
-                try:
-                    if isinstance(image, StarletteUploadFile):
-                        image_raw = await image.read()
-                    elif isinstance(image, str):
-                        image_raw = base64.b64decode(image)
-                    else:
-                        log.warning('Unsupported type: %s', type(image))
-                        continue
-                    data[name] = await ocr_executor(image_raw, det, rec, cls)
-                except Exception as e:
-                    log.exception(e)
-                    data[name] = None
-            return data if data else None
+        for key, image_raw in images.items():  # type: str, bytes
+            try:
+                images[key] = await ocr_executor(image_raw, det, rec, cls)
+            except Exception as e:
+                log.exception(e)
+                images[key] = None
+
+        return images if images else None
     else:
         body = await request.body()
+
         if body:
             try:
                 image_raw = base64.b64decode(body)
                 return await ocr_executor(image_raw, det, rec, cls)
             except Exception as e:
                 log.exception(e)
-    return None
+
+        return None
 
 
 if __name__ == '__main__':
