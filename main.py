@@ -71,12 +71,13 @@ try:
     app = FastAPI(openapi_url=None)
     ocr = PaddleOCR(
         lang=params.lang,
+        use_angle_cls=True,
         show_log=False,
         det_model_dir=os.path.join(abs_model_dir, 'whl', 'det'),
         rec_model_dir=os.path.join(abs_model_dir, 'whl', 'rec'),
         cls_model_dir=os.path.join(abs_model_dir, 'whl', 'cls'),
     )
-except ImportError as exc:
+except Exception as exc:
     log.exception(exc)
     sys.exit(1)
 
@@ -97,7 +98,7 @@ async def print_startup_config():
 
 async def ocr_executor(
         img: bytes,
-        det: bool = True, rec: bool = True, cls: bool = True,
+        det: bool = True, rec: bool = True, cls: bool = False,
 ) -> str:
     res = ocr.ocr(img, det=det, rec=rec, cls=cls)
     log.info(
@@ -110,7 +111,7 @@ async def ocr_executor(
 @app.post('/ocr')
 async def ocr_endpoint(
         *, request: Request,
-        det: bool = True, rec: bool = True, cls: bool = True,
+        det: bool = True, rec: bool = True, cls: bool = False,
 ):
     if 'content-type' in request.headers:
         content_type = request.headers.get('content-type').lower()
