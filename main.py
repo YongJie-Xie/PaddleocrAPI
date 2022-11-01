@@ -1,8 +1,13 @@
 import argparse
 import base64
+import os
+import sys
 import textwrap
 
 from mugwort import Logger
+
+if getattr(sys, 'frozen', False):
+    os.chdir(os.path.dirname(sys.executable))
 
 log = Logger('PaddleocrAPI', Logger.INFO)
 log.info('PaddleocrAPI is starting, please wait...')
@@ -46,8 +51,17 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--host', type=str, help='listen host')
 parser.add_argument('--port', type=int, help='listen port')
 parser.add_argument('--lang', type=str, help='language code')
+parser.add_argument('--model-dir', type=str, help=r'model folder')
 parser.set_defaults(host='127.0.0.1', port=8000, lang='en')
 params = parser.parse_args()
+
+# init model dir
+abs_model_dir = os.path.join(os.path.expanduser('~'), '.paddleocr')
+if params.model_dir:
+    os.makedirs(params.model_dir, exist_ok=True)
+    if os.path.isdir(params.model_dir):
+        abs_model_dir = os.path.abspath(params.model_dir)
+log.info('PaddleocrAPI model dir: %s', abs_model_dir)
 
 try:
     from fastapi import FastAPI, Request
@@ -55,11 +69,15 @@ try:
     from paddleocr import PaddleOCR
 
     app = FastAPI(openapi_url=None)
-    ocr = PaddleOCR(lang=params.lang, show_log=False)
+    ocr = PaddleOCR(
+        lang=params.lang,
+        show_log=False,
+        det_model_dir=os.path.join(abs_model_dir, 'whl', 'det'),
+        rec_model_dir=os.path.join(abs_model_dir, 'whl', 'rec'),
+        cls_model_dir=os.path.join(abs_model_dir, 'whl', 'cls'),
+    )
 except ImportError as exc:
     log.exception(exc)
-    import sys
-
     sys.exit(1)
 
 
