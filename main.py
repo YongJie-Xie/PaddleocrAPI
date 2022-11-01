@@ -70,6 +70,7 @@ log.info('PaddleocrAPI model dir: %s', abs_model_dir)
 # init fastapi & init paddleocr
 try:
     from fastapi import FastAPI, Request
+    from fastapi.responses import PlainTextResponse
     from fastapi.datastructures import StarletteUploadFile
     from paddleocr import PaddleOCR
 
@@ -111,6 +112,11 @@ async def ocr_executor(
         len(img), det, rec, cls, res
     )
     return res
+
+
+@app.get('/ping')
+async def pingpong_endpoint():
+    return PlainTextResponse('pong')
 
 
 @app.post('/ocr')
