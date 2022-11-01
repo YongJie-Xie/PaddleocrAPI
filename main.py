@@ -9,9 +9,7 @@ from mugwort import Logger
 if getattr(sys, 'frozen', False):
     os.chdir(os.path.dirname(sys.executable))
 
-log = Logger('PaddleocrAPI', Logger.INFO)
-log.info('PaddleocrAPI is starting, please wait...')
-
+# args parse
 parser = argparse.ArgumentParser(
     description='This is a project that wraps Paddleocr by FastAPI.',
     formatter_class=argparse.RawTextHelpFormatter,
@@ -55,6 +53,10 @@ parser.add_argument('--model-dir', type=str, help=r'model folder')
 parser.set_defaults(host='127.0.0.1', port=8000, lang='en')
 params = parser.parse_args()
 
+# init logger
+log = Logger('PaddleocrAPI', Logger.INFO)
+log.info('PaddleocrAPI is starting, please wait...')
+
 # init model dir
 abs_model_dir = os.path.join(os.path.expanduser('~'), '.paddleocr')
 if params.model_dir:
@@ -63,6 +65,7 @@ if params.model_dir:
         abs_model_dir = os.path.abspath(params.model_dir)
 log.info('PaddleocrAPI model dir: %s', abs_model_dir)
 
+# init fastapi & init paddleocr
 try:
     from fastapi import FastAPI, Request
     from fastapi.datastructures import StarletteUploadFile
@@ -92,7 +95,7 @@ async def print_startup_config():
         ''').strip(),
         params.host,
         params.port,
-        params.lang
+        params.lang,
     )
 
 
