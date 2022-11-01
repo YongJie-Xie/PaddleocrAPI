@@ -16,35 +16,37 @@ parser = argparse.ArgumentParser(
     epilog=r'''
   PaddleocrAPI Helper
 
-    Tips: Params det/rec/cls are optional, default True.
+    Paddleocr docs:
 
-    # Exp1. post single image in base64 in body (Supported)
-    response = requests.post(url, data=image_base64)
-    print(json.dumps(response.json()))
+      https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/README.md
 
-    # Exp2. post multiple image in binary in form body
-    response = requests.post(
-        url,
-        params={'rec': False, 'cls': False},
-        files={'file': image_binary},
-    )
-    print(json.dumps(response.json()))
+    Request params:
 
-    # Exp3. post multiple image in base64 in form body
-    response = requests.post(
-        url,
-        params={'det': False, 'cls': False},
-        data={'example': image_base64},
-    )
-    print(json.dumps(response.json()))
+      det: (optional) Detector, default True
+      rec: (optional) Recognizer, default True
+      cls: (optional) Classifier, default False
 
-    # Exp4. post multiple image in base64 in json body
-    response = requests.post(
-        url,
-        params={'det': False, 'rec': False, 'cls': False},
-        json={'example': image_base64.decode()}
-    )
-    print(json.dumps(response.json()))
+    Request examples:
+
+      Exp0. about params
+        default_params = {'det': True, 'rec': True, 'cls': False}
+        requests.post(url, params=default_params, ...)
+
+      Exp1. post single image in base64 in body (Recommended)
+        response = requests.post(url, data=image_base64)
+        print(json.dumps(response.json()))
+
+      Exp2. post multiple image in binary in form body
+        response = requests.post(url, files={'demo': image_binary})
+        print(json.dumps(response.json()))
+
+      Exp3. post multiple image in base64 in form body
+        response = requests.post(url, data={'demo': image_base64})
+        print(json.dumps(response.json()))
+
+      Exp4. post multiple image in base64 in json body
+        response = requests.post(url, json={'demo': image_base64.decode()})
+        print(json.dumps(response.json()))
 ''')
 parser.add_argument('--host', type=str, help='listen host')
 parser.add_argument('--port', type=int, help='listen port')
